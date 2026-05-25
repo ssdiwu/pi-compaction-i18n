@@ -1,6 +1,6 @@
 {
   "name": "pi-compaction-i18n",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Locale-aware compaction and branch summarization for pi",
   "type": "module",
   "keywords": [

@@ -43,7 +43,7 @@ pi install /absolute/path/to/pi-compaction-i18n
 
 ## ⚙️ Configuration
 
-Create `~/.pi/pi-compaction-i18n.json`:
+Create `~/.pi/agent/pi-compaction-i18n.json`:
 
 ```json
 {

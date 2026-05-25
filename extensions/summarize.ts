@@ -13,7 +13,7 @@ interface CompactionConfig {
   model?: string;   // e.g. "zai/glm-5v-turbo", empty = use ctx.model
 }
 
-const CONFIG_PATH = join(homedir(), ".pi", "pi-compaction-i18n.json");
+const CONFIG_PATH = join(homedir(), ".pi", "agent", "pi-compaction-i18n.json");
 
 function loadConfig(): CompactionConfig {
   try {
