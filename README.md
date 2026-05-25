@@ -41,6 +41,24 @@ Or install from a local path:
 pi install /absolute/path/to/pi-compaction-i18n
 ```
 
+## ⚙️ Configuration
+
+Create `~/.pi/pi-compaction-i18n.json`:
+
+```json
+{
+  "locale": "auto",
+  "model": ""
+}
+```
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `locale` | string | `"auto"` | Force a locale (e.g. `"zh-CN"`). Set to `"auto"` for auto-detection from environment |
+| `model` | string | _(session model)_ | Override the LLM model for summaries (`provider/modelId`). Empty = use current session's active model |
+
+> **Note**: Compaction summaries benefit from strong models (they need deep context understanding). Only override `model` if you have a specific reason.
+
 ## 🚀 Usage
 
 ### Check status

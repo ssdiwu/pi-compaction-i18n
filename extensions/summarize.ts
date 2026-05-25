@@ -1,7 +1,33 @@
-import { complete } from "@earendil-works/pi-ai";
+import { complete, getModel } from "@earendil-works/pi-ai";
 import { convertToLlm, serializeConversation } from "@earendil-works/pi-coding-agent";
 import { detectLocale, languageInstructionForLocale } from "./locale.js";
 import { buildCompactionPrompt, buildTreeSummaryPrompt } from "./templates.js";
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
+import { homedir } from "os";
+
+// ── Config ───────────────────────────────────────────────
+
+interface CompactionConfig {
+  locale?: string;  // e.g. "zh-CN", or "auto" for auto-detect
+  model?: string;   // e.g. "zai/glm-5v-turbo", empty = use ctx.model
+}
+
+const CONFIG_PATH = join(homedir(), ".pi", "pi-compaction-i18n.json");
+
+function loadConfig(): CompactionConfig {
+  try {
+    if (!existsSync(CONFIG_PATH)) return {};
+    const raw = readFileSync(CONFIG_PATH, "utf-8");
+    return JSON.parse(raw) as CompactionConfig;
+  } catch {
+    return {};
+  }
+}
+
+const compactionConfig = loadConfig();
+
+// ── Core ─────────────────────────────────────────────────
 
 const DEFAULT_SYSTEM_PROMPT = "You are a conversation summarizer for pi. Follow the requested language exactly and output only the requested structured markdown summary.";
 
@@ -48,10 +74,20 @@ export function serializeSessionEntries(entries: any[]): string {
 }
 
 async function runSummary(ctx: any, prompt: string, signal?: AbortSignal): Promise<string | undefined> {
-  const model = ctx.model;
+  // Use configured model if set, otherwise fall back to session's active model
+  let model = ctx.model;
   if (!model) {
     ctx.ui.notify("No active model for compaction summarization; falling back to pi default compaction.", "warning");
     return undefined;
+  }
+  if (compactionConfig.model) {
+    const slashIndex = compactionConfig.model.indexOf("/");
+    if (slashIndex !== -1) {
+      const provider = compactionConfig.model.slice(0, slashIndex);
+      const modelId = compactionConfig.model.slice(slashIndex + 1);
+      const resolved = getModel(provider, modelId);
+      if (resolved) model = resolved;
+    }
   }
 
   const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
@@ -90,7 +126,9 @@ async function runSummary(ctx: any, prompt: string, signal?: AbortSignal): Promi
 }
 
 export async function summarizeForCompaction(event: any, ctx: any) {
-  const locale = detectLocale();
+  const locale = compactionConfig.locale && compactionConfig.locale !== "auto"
+    ? compactionConfig.locale
+    : detectLocale();
   const languageInstruction = languageInstructionForLocale(locale);
   const conversationText = serializeAgentMessages([
     ...event.preparation.messagesToSummarize,
@@ -124,7 +162,9 @@ export async function summarizeForCompaction(event: any, ctx: any) {
 export async function summarizeForTree(event: any, ctx: any) {
   if (!event.preparation.userWantsSummary) return undefined;
 
-  const locale = detectLocale();
+  const locale = compactionConfig.locale && compactionConfig.locale !== "auto"
+    ? compactionConfig.locale
+    : detectLocale();
   const languageInstruction = languageInstructionForLocale(locale);
   const conversationText = serializeSessionEntries(event.preparation.entriesToSummarize ?? []);
 
