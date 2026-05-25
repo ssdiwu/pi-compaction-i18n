@@ -2,11 +2,11 @@ import { complete, getModel } from "@earendil-works/pi-ai";
 import { convertToLlm, serializeConversation } from "@earendil-works/pi-coding-agent";
 import { detectLocale, languageInstructionForLocale } from "./locale.js";
 import { buildCompactionPrompt, buildTreeSummaryPrompt } from "./templates.js";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 
-// ── Config ───────────────────────────────────────────────
+// ── Config (auto-create if missing) ──────────────────────
 
 interface CompactionConfig {
   locale?: string;  // e.g. "zh-CN", or "auto" for auto-detect
@@ -15,13 +15,21 @@ interface CompactionConfig {
 
 const CONFIG_PATH = join(homedir(), ".pi", "agent", "pi-compaction-i18n.json");
 
+const DEFAULT_CONFIG: CompactionConfig = {
+  locale: "auto",
+  model: "", // empty = use current session model (ctx.model)
+};
+
 function loadConfig(): CompactionConfig {
   try {
-    if (!existsSync(CONFIG_PATH)) return {};
+    if (!existsSync(CONFIG_PATH)) {
+      writeFileSync(CONFIG_PATH, JSON.stringify(DEFAULT_CONFIG, null, 2), "utf-8");
+      return DEFAULT_CONFIG;
+    }
     const raw = readFileSync(CONFIG_PATH, "utf-8");
     return JSON.parse(raw) as CompactionConfig;
   } catch {
-    return {};
+    return DEFAULT_CONFIG;
   }
 }
 
@@ -80,6 +88,7 @@ async function runSummary(ctx: any, prompt: string, signal?: AbortSignal): Promi
     ctx.ui.notify("No active model for compaction summarization; falling back to pi default compaction.", "warning");
     return undefined;
   }
+
   if (compactionConfig.model) {
     const slashIndex = compactionConfig.model.indexOf("/");
     if (slashIndex !== -1) {

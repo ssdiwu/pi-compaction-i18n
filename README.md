@@ -2,7 +2,7 @@
 
 > **Make pi's compaction and branch summaries speak your language.**
 
-`pi-compaction-i18n` is a pi extension that overrides the default English-only `/compact` and `/tree` branch summaries with **fully localized output** in 11 languages — auto-detected from your system locale.
+`pi-compaction-i18n` is a Pi extension that overrides the default English-only `/compact` and `/tree` branch summaries with **fully localized output** in 11 languages — auto-detected from your system locale.
 
 ## ✨ What it does
 
@@ -35,15 +35,11 @@
 pi install npm:pi-compaction-i18n
 ```
 
-Or install from a local path:
-
-```bash
-pi install /absolute/path/to/pi-compaction-i18n
-```
+**Works out of the box.** No configuration needed — uses your current session's model by default.
 
 ## ⚙️ Configuration
 
-Create `~/.pi/agent/pi-compaction-i18n.json`:
+Config file is **auto-generated** on first use at `~/.pi/agent/pi-compaction-i18n.json`:
 
 ```json
 {
@@ -57,13 +53,13 @@ Create `~/.pi/agent/pi-compaction-i18n.json`:
 | `locale` | string | `"auto"` | Force a locale (e.g. `"zh-CN"`). Set to `"auto"` for auto-detection from environment |
 | `model` | string | _(session model)_ | Override the LLM model for summaries (`provider/modelId`). Empty = use current session's active model |
 
-> **Note**: Compaction summaries benefit from strong models (they need deep context understanding). Only override `model` if you have a specific reason.
+> **Note**: Compaction summaries benefit from strong models (they need deep context understanding). The default behavior of using your session model is recommended in most cases. Only override if you have a specific reason.
 
 ## 🚀 Usage
 
 ### Check status
 
-After installing, open any pi session and run:
+After installing, open any Pi session and run:
 
 ```
 /compaction-i18n-status
@@ -87,11 +83,11 @@ Both will now produce fully localized markdown summaries.
 
 ## 🔧 How it works
 
-1. **Locale detection**: Reads `PI_LOCALE` → `LC_ALL` → `LANG` environment variables (e.g., `zh_CN.UTF-8` → `zh-CN`)
+1. **Locale detection**: Reads `PI_LOCALE` → `LC_ALL` → `LANG` environment variables (e.g., `zh_CN.UTF-8` → `zh-CN`). Can be overridden via config.
 2. **Language mapping**: Maps locale code to one of 11 supported languages
 3. **Template generation**: Builds a compaction/branch-summary prompt with **localized section headings** and a **language instruction** prepended
-4. **Event interception**: Registers handlers for `session_before_compact` and `session_before_tree` events via pi's extension API
-5. **LLM call**: Uses `complete()` from `@earendil-works/pi-ai` to generate the summary with the localized prompt
+4. **Event interception**: Registers handlers for `session_before_compact` and `session_before_tree` events via Pi's extension API
+5. **LLM call**: Uses `complete()` from `@earendil-works/pi-ai` to generate the summary with the localized prompt. Uses session's active model by default, or a configured override.
 
 ### Event precedence
 
@@ -109,6 +105,10 @@ npm test
 # Install locally into pi for testing
 pi install .
 ```
+
+## 🔗 Related
+
+- [pi-autoname](https://github.com/ssdiwu/pi-autoname) — AI-powered session naming (sibling project)
 
 ## 📄 License
 
