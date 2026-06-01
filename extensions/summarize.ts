@@ -1,4 +1,4 @@
-import { complete, getModel } from "@earendil-works/pi-ai";
+import { complete, getModel, getEnvApiKey } from "@earendil-works/pi-ai";
 import { convertToLlm, serializeConversation } from "@earendil-works/pi-coding-agent";
 import { detectLocale, languageInstructionForLocale } from "./locale.js";
 import { buildCompactionPrompt, buildTreeSummaryPrompt } from "./templates.js";
@@ -81,6 +81,56 @@ export function serializeSessionEntries(entries: any[]): string {
   return serializeAgentMessages(messages);
 }
 
+/**
+ * Resolve API key for a model with multi-strategy fallback.
+ *
+ * Strategy order:
+ *   1. ctx.modelRegistry.getApiKeyAndHeaders() — preferred, session-aware
+ *   2. Direct auth.json read — bypasses potential extension-context issues
+ *   3. Environment variable — last resort
+ */
+async function resolveModelAuth(
+  ctx: any,
+  model: any,
+): Promise<{ apiKey: string | undefined; headers: Record<string, string> | undefined }> {
+  // Strategy 1: Session's modelRegistry (normal path)
+  try {
+    const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
+    if (auth?.ok && auth?.apiKey) {
+      return { apiKey: auth.apiKey, headers: auth.headers };
+    }
+  } catch {
+    // Strategy 1 failed, continue to fallback
+  }
+
+  // Strategy 2: Direct auth.json read (bypasses extension-context issues)
+  try {
+    const authPath = join(homedir(), ".pi", "agent", "auth.json");
+    if (existsSync(authPath)) {
+      const raw = readFileSync(authPath, "utf-8");
+      const authData = JSON.parse(raw);
+      const cred = authData[model.provider];
+      if (cred?.type === "api_key" && cred?.key) {
+        return { apiKey: cred.key, headers: undefined };
+      }
+    }
+  } catch {
+    // Strategy 2 failed, continue to fallback
+  }
+
+  // Strategy 3: Environment variable
+  try {
+    const envKey = getEnvApiKey(model.provider);
+    if (envKey) {
+      return { apiKey: envKey, headers: undefined };
+    }
+  } catch {
+    // Strategy 3 also failed
+  }
+
+  return { apiKey: undefined, headers: undefined };
+}
+
 async function runSummary(ctx: any, prompt: string, signal?: AbortSignal): Promise<string | undefined> {
   // Use configured model if set, otherwise fall back to session's active model
   let model = ctx.model;
@@ -99,9 +149,9 @@ async function runSummary(ctx: any, prompt: string, signal?: AbortSignal): Promi
     }
   }
 
-  const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-  if (!auth.ok || !auth.apiKey) {
-    ctx.ui.notify(`Compaction i18n could not get model auth; falling back to pi default compaction.`, "warning");
+  const { apiKey, headers } = await resolveModelAuth(ctx, model);
+  if (!apiKey) {
+    ctx.ui.notify(`Compaction i18n could not get API key for provider "${model.provider}"; falling back to pi default compaction.`, "warning");
     return undefined;
   }
 
@@ -118,8 +168,8 @@ async function runSummary(ctx: any, prompt: string, signal?: AbortSignal): Promi
       ],
     },
     {
-      apiKey: auth.apiKey,
-      headers: auth.headers,
+      apiKey,
+      headers,
       signal,
       maxTokens: Math.min(8192, model.maxTokens > 0 ? model.maxTokens : 8192),
     },
