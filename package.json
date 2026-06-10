@@ -1,6 +1,6 @@
 {
   "name": "pi-compaction-i18n",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Locale-aware compaction and branch summarization for pi",
   "type": "module",
   "keywords": [
@@ -9,13 +9,14 @@
     "i18n",
     "compaction",
     "summary",
-    "locale"
+    "locale",
+    "extension"
   ],
   "license": "MIT",
   "author": "ssdiwu",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ssdiwu/pi-compaction-i18n"
+    "url": "git+https://github.com/ssdiwu/pi-compaction-i18n.git"
   },
   "homepage": "https://github.com/ssdiwu/pi-compaction-i18n#readme",
   "bugs": {
