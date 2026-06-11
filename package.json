@@ -1,6 +1,6 @@
 {
   "name": "pi-compaction-i18n",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Locale-aware compaction and branch summarization for pi",
   "type": "module",
   "keywords": [
@@ -23,6 +23,7 @@
     "url": "https://github.com/ssdiwu/pi-compaction-i18n/issues"
   },
   "files": [
+    "index.ts",
     "extensions/",
     "README.md",
     "LICENSE",
@@ -43,7 +44,7 @@
   },
   "pi": {
     "extensions": [
-      "./extensions"
+      "./index.ts"
     ]
   }
 }
