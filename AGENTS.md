@@ -4,7 +4,8 @@
 
 - 本文件只记录本地化扩展长期契约；支持语言、locale 优先级、安装和当前行为以 `README.md`、源码和测试为准。
 - 修改前读取目标 locale、模板、Pi 集成入口及相应测试，不复制语言矩阵。
-- 入口导航见 `doc/README.md`；现行正文在 `README.md`、`extensions/`（`locale.ts`、`templates.ts`、`summarize.ts`）与 `tests/`（`locale.test.ts`、`templates.test.ts`、`extension.test.ts`）。
+- 入口导航见 `doc/README.md`；现行正文在 `README.md`、`extensions/`（`locale.ts`、`templates.ts`、`summarize.ts`）与 `tests/`（`locale.test.ts`、`templates.test.ts`、`extension.test.ts`）；术语口径见 `doc/术语表.md`。
+- 本仓库不建 `doc/架构/` 与 `doc/规格/`：机制与规格的唯一正文在根 `README.md` 与源码、测试，不要在 `doc/` 下再写第二份。
 
 ## 项目边界
 
