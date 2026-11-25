@@ -1,5 +1,7 @@
 # pi-compaction-i18n
 
+English | [简体中文](./README-zh.md)
+
 > **Make pi's compaction and branch summaries speak your language.**
 
 `pi-compaction-i18n` is a Pi extension that overrides the default English-only `/compact` and `/tree` branch summaries with **fully localized output** in 11 languages — auto-detected from your system locale.
@@ -93,6 +95,16 @@ Both will now produce fully localized markdown summaries.
 
 For `session_before_compact` and `session_before_tree` events, **the last handler that returns a non-null result wins**. If you have multiple extensions that override compaction, ensure only one is active at a time.
 
+## Public contract
+
+- **Extension entry** — `index.ts` exports the default extension entry; `package.json` registers it through `pi.extensions`.
+- **Events used** — `session_before_compact` and `session_before_tree`; the status command is `/compaction-i18n-status`.
+- **Configuration contract** — the `locale` and `model` fields of `~/.pi/agent/pi-compaction-i18n.json` are listed in the configuration table above; locale detection order is fixed at `PI_LOCALE` > `LC_ALL` > `LANG`, with a safe fallback to English.
+- **Output boundary** — only summary language selection and prompt templates change; summary facts, branch semantics, and Pi core state do not. Variables, formatting, and information coverage stay consistent across languages.
+- **Model calls** — summaries are generated with `complete()` from `@earendil-works/pi-ai`, using the session's active model by default; no keys are hardcoded and Pi core is not modified.
+- **Multi-extension rule** — the last handler returning a non-null result wins for the same event; do not create a conflicting duplicate load path with consumers such as `pi-di18n`.
+- **Implementation map** — `extensions/locale.ts` (detection and mapping), `extensions/templates.ts` (templates and language matrix), `extensions/summarize.ts` (events and LLM calls); concept names follow [doc/术语表.md](doc/术语表.md).
+
 ## 🧪 Development
 
 ```bash
@@ -105,6 +117,15 @@ npm test
 # Install locally into pi for testing
 pi install .
 ```
+
+## Contributing
+
+- **Entry points** — `index.ts` and `extensions/` (implementation), `tests/` (`locale.test.ts`, `templates.test.ts`, `extension.test.ts`), `README.md` and `README-zh.md` (user documentation), `AGENTS.md` (long-term contract and boundaries), `doc/README.md` (documentation navigation), `doc/术语表.md` (concept names and boundaries).
+- **Local verification** — `npm test` (Vitest). Build a deterministic test from locale input to output first. When the Pi API or actual rendering changes, also load the checkout temporarily and verify `/compact`, `/tree`, and unknown-locale fallback; state explicitly when no TUI test was run.
+- **Documentation sync** — update `README.md` (English) and `README-zh.md` (Chinese) in the same change, keep every technical detail in both, and keep the two pages linked at the top.
+- **Change log** — maintainers record user-visible changes in `CHANGELOG-zh.md` and translate them into `CHANGELOG.md` when preparing each release. Both changelogs ship in the npm package. Contributors may describe user impact in the pull request.
+- **Packaging check** — before publishing, run `npm pack --dry-run --ignore-scripts --json` and confirm the tarball contains `README.md`, `README-zh.md`, `CHANGELOG.md`, and `CHANGELOG-zh.md`.
+- **Boundaries** — only change summary language and prompt templates, never summary facts or branch semantics; keep variables, formatting, and information coverage consistent across languages; do not read or upload user data unrelated to localization and do not hardcode keys.
 
 ## 🔗 Related
 

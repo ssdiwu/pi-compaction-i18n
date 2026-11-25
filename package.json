@@ -1,6 +1,6 @@
 {
   "name": "pi-compaction-i18n",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Locale-aware compaction and branch summarization for pi",
   "type": "module",
   "keywords": [
@@ -26,6 +26,9 @@
     "index.ts",
     "extensions/",
     "README.md",
+    "README-zh.md",
+    "CHANGELOG.md",
+    "CHANGELOG-zh.md",
     "LICENSE",
     "package.json"
   ],
@@ -38,8 +41,8 @@
     "@earendil-works/pi-coding-agent": "*"
   },
   "devDependencies": {
-    "@earendil-works/pi-ai": "*",
-    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-ai": "1.6.0",
+    "@earendil-works/pi-coding-agent": "1.6.0",
     "vitest": "^4.1.0"
   },
   "pi": {

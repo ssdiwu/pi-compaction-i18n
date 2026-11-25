@@ -2,7 +2,8 @@
 
 ## 文件职责与阅读顺序
 
-- 本文件只记录本地化扩展长期契约；支持语言、locale 优先级、安装和当前行为以 `README.md`、源码和测试为准。
+- 本文件只记录本地化扩展长期契约；支持语言、locale 优先级、安装和当前行为以 `README.md`、`README-zh.md`、源码和测试为准。
+- `README.md` 是英文入口，`README-zh.md` 是中文入口，两份在顶部互链，内容保持语义同步；语言、检测顺序、提示契约、公开接口或安装方式变化时，在同一次改动中更新两版，保留全部技术细节。
 - 修改前读取目标 locale、模板、Pi 集成入口及相应测试，不复制语言矩阵。
 - 入口导航见 `doc/README.md`；现行正文在 `README.md`、`extensions/`（`locale.ts`、`templates.ts`、`summarize.ts`）与 `tests/`（`locale.test.ts`、`templates.test.ts`、`extension.test.ts`）；术语口径见 `doc/术语表.md`。
 - 本仓库不建 `doc/架构/` 与 `doc/规格/`：机制与规格的唯一正文在根 `README.md` 与源码、测试，不要在 `doc/` 下再写第二份。
@@ -35,5 +36,8 @@ Pi API 或实际渲染变化还需临时加载当前仓库，验证 `/compact`�
 
 ## 文档与 Git
 
-- 语言、检测顺序、提示契约或安装方式变化时同步 `README.md`。
+- 语言、检测顺序、提示契约或安装方式变化时同步 `README.md` 与 `README-zh.md`。公开贡献入口（开发、验证命令、公开接口约束）写在 README 的 Contributing 节，`doc/README.md` 顶部提供英文贡献者导航；内部中文与历史内容保留。
+- 两份变更日志都在本 GitHub 仓库维护。`CHANGELOG.md` 是英文发布记录，`CHANGELOG-zh.md` 是中文日常记录。两份只写用户可感知事实，不倒填未发布版本。
+- 日常用中文把已完成的用户可感知变化写入 `CHANGELOG-zh.md`；准备发布（release）时按版本把同一版本的用户可感知条目同步进英文 `CHANGELOG.md`，两份都保留该版本记录，并核对版本、日期与 issue 链接。
+- `README.md` 是英文默认版（npm 默认展示），`README-zh.md` 是同包附带的中文版；两份 README 与两份 changelog 都随 npm 包发布。发布前用 `npm pack --dry-run --ignore-scripts --json` 核对清单包含 `README.md`、`README-zh.md`、`CHANGELOG.md`、`CHANGELOG-zh.md`。
 - 未经用户明确要求，不执行 commit、push、tag 或 npm publish。
